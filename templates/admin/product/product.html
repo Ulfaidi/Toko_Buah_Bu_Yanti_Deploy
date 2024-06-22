@@ -1,0 +1,90 @@
+{% extends 'admin/templates/base.html' %} 
+{% block content %}
+
+<div class="row">
+  <div class="col-12">
+    <div class="card my-4">
+      <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+        <div class="bg-gradient-custom shadow-success border-radius-lg pt-4 pb-3">
+          <div class="row">
+            <div class="col-6 d-flex align-items-center">
+              <h6 class="text-white text-capitalize ps-3">Tabel Produk</h6>
+            </div>
+            <div class="col-6 text-end">
+              <a class="btn bg-gradient-custom text-capitalize text-white mb-0 me-4" href="/addProduct"><i class="material-icons text-lg">add</i>&nbsp;&nbsp;Tambah Produk</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card-body px-0 pb-2">
+        <div class="table-responsive p-0">
+          <table id="dataTable" class="table align-items-center mb-0">
+            <thead>
+              <tr>
+                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Nama Produk</th>
+                <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Status</th>
+                <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Satuan</th>
+                <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Harga Jual</th>
+                <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Deskripsi</th>
+                <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Aksi</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for product in products %}
+              <tr>
+                <td>
+                  <div class="d-flex px-2 py-1">
+                    <h6 class="mb-0 text-sm" style="width: 30px">{{ loop.index }}.</h6>
+                    <div>
+                      <img src="../static/images/imgProducts/{{ product.gambar }}" class="avatar avatar-sm me-3 border-radius-lg" alt="user1" />
+                    </div>
+                    <div class="d-flex flex-column justify-content-center">
+                      <h6 class="mb-0 text-sm">{{ product.nama }}</h6>
+                    </div>
+                  </div>
+                </td>
+                <td class="align-middle text-center text-sm">
+                  <span class="badge badge-sm {% if product.stok > 0 %}bg-gradient-success custom-width{% else %}bg-gradient-danger{% endif %}"> {% if product.stok > 0 %} Ada {% else %} Tidak ada {% endif %} </span>
+                </td>
+                <td class="align-middle text-center text-sm">
+                  <span class="text-xs font-weight-bold">{{ product.satuan }}</span>
+                </td>
+                <td class="align-middle text-center text-sm">
+                  <span class="text-xs font-weight-bold">Rp {{ product.harga }}</span>
+                </td>
+                <td class="align-middle text-center">
+                  <span class="text-secondary text-xs font-weight-bold" title="{{ product.deskripsi }}">{{ product.deskripsi[:20] }}{% if product.deskripsi|length > 20 %}...{% endif %}</span>
+                </td>
+                <td class="align-middle text-center">
+                  <a class="btn btn-link text-danger text-gradient px-3 mb-0" href="javascript:void(0);" onclick="konfirmasiHapus('{{ product._id }}')"><i class="material-icons text-sm me-2">delete</i>Hapus</a>
+                  <a class="btn btn-link text-dark px-3 mb-0" href="/editProduct/{{ product._id }}"><i class="material-icons text-sm me-2">edit</i>Edit</a>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function konfirmasiHapus(productId) {
+    Swal.fire({
+      title: "Apakah Anda yakin?",
+      text: "Anda tidak akan bisa mengembalikannya!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Ya, hapus!",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        window.location.href = "/deleteProduct/" + productId;
+      }
+    });
+  }
+</script>
+
+{% endblock %}

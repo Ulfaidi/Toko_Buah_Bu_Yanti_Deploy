@@ -1,0 +1,48 @@
+{% include 'page/header.html' %}
+
+<!-- Single Page Header start -->
+<div class="container-fluid page-header py-5">
+  <h1 class="text-center text-white display-6">Detail Buah</h1>
+</div>
+<!-- Single Page Header End -->
+
+<!-- Single Product Start -->
+<div class="container py-5 mt-5 d-flex justify-content-center">
+  <div class="row border" style="width: 1400px;">
+    <!-- Image Column -->
+    <div class="col-lg-5 mb-4 d-flex justify-content-center">
+      <img src="../static/images/imgProducts/{{ product.gambar }}" alt="Gambar" class="img-fluid rounded" style="height: 500px" />
+    </div>
+    <!-- Labels Column -->
+    <div class="col-lg-2">
+      <div class="h-100 d-flex flex-column justify-content-start mt-5">
+        <h4 class="fw-bold">Nama Buah</h4>
+        <h5 class="fw-bold">Harga</h5>
+        <h5 class="fw-bold">Stok tersedia</h5>
+        <h5 class="fw-bold">Deskripsi</h5>
+      </div>
+    </div>
+    <!-- Details Column -->
+    <div class="col-lg-5">
+      <div class="h-100 d-flex flex-column justify-content-start mt-5">
+        <h4>{{ product.nama }}</h4>
+        <h5>Rp {{ product.harga }} / {{ product.satuan }}</h5>
+        <h5>  
+          {% if product.stok > 0 %}
+          {{ product.stok }} {{ product.satuan }} Tersedia
+          {% else %}
+          Tidak Tersedia
+          {% endif %}
+        </h5>
+        <div class="text-justify">
+          <h5>{{ product.deskripsi }}</h5>
+        </div>
+        <div class="mt-4 d-flex justify-content-end">
+          <a href="https://wa.me/+6283870097769?text=Halo%20saya%20ingin%20memesan%20{{ product.nama }}.%20Harga:%20Rp{{ product.harga }}%20per%20{{ product.satuan }}.%20Stok:%20{% if product.stok > 0 %}{{ product.stok }}%20{{ product.satuan }}%20tersedia{% else %}Tidak%20Tersedia{% endif %}.%20Berapa%20banyak%20yang%20ingin%20saya%20pesan?" target="_blank" class="btn border border-secondary rounded-pill px-4 py-2 mb-4 text-primary"><i class="fab fa-whatsapp fa-lg me-2 text-primary"></i>Pesan Sekarang</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Single Product End -->
+{% include 'page/footer.html' %}

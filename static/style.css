@@ -1,0 +1,79 @@
+.bg-gradient-custom {
+  background: linear-gradient(90deg, rgba(101, 152, 5, 0.7) 0%, rgba(139, 208, 11, 0.7) 100%);
+}
+
+/* Hover effect for buttons with .bg-gradient-custom class */
+/* Button styles */
+.btn.bg-gradient-custom {
+  color: #fff; /* Ensure text color is white */
+  transition: background 0.3s ease, box-shadow 0.3s ease; /* Smooth transition for hover effect */
+}
+
+.btn.bg-gradient-custom:hover {
+  background: linear-gradient(90deg, rgba(101, 152, 5, 0.9) 0%, rgba(139, 208, 11, 0.9) 100%);
+  box-shadow: 0 12px 24px rgba(85, 83, 83, 0.3), 0 6px 12px rgba(73, 72, 72, 0.2);
+  color: #fff; /* Text color remains white on hover */
+}
+
+/* untuk stok ada/tidak ada product */
+.custom-width {
+  min-width: 73px;
+  display: inline-block;
+  text-align: center;
+}
+/* Upload gambar Produk dan supplier */
+#drop-area {
+  height: 150px;
+  width: 150px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+#drop-area.highlight {
+  border-color: #007bff;
+}
+#drop-area .content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+#drop-area img {
+  max-height: 150px;
+  margin: 10px;
+  display: inline-block;
+}
+
+/* untuk deskripsi detail */
+.text-justify {
+  text-align: justify;
+}
+
+/* hover tulisan di produk Admin */
+.tooltip {
+  position: relative;
+  display: inline-block;
+}
+
+.tooltip .tooltiptext {
+  visibility: hidden;
+  width: 120px;
+  background-color: black;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 0;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%; 
+  left: 50%;
+  margin-left: -60px; 
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+  opacity: 1;
+}

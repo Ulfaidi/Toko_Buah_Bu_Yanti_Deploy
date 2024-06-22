@@ -1,0 +1,149 @@
+{% extends 'admin/templates/base.html' %}
+{% block content %}
+
+<div class="page-header min-vh-100">
+  <div class="container">
+    <div class="row">
+      <div class="col-6 d-lg-flex d-none h-100 my-auto pe-0 position-absolute top-0 start-0 text-center justify-content-center flex-column">
+        <div class="position-relative bg-gradient-primary h-100 m-3 px-7 border-radius-lg d-flex flex-column justify-content-center" style="background-image: url('../static/images/backgroundlogin.png'); background-size: cover">
+          <span class="mask bg-gradient-dark opacity-3"></span>
+        </div>
+      </div>
+      <div class="col-xl-4 col-lg-5 col-md-7 d-flex flex-column ms-auto me-auto ms-lg-auto me-lg-5">
+        <div class="card card-plain">
+          <div class="card-header">
+            <h4 class="font-weight-bolder">Mendaftar</h4>
+            <p class="mb-0">Masukkan username dan password Anda untuk mendaftar !</p>
+          </div>
+          <div class="card-body">
+            <form role="form" method="POST" action="{{ url_for('register') }}" enctype="multipart/form-data" id="registrationForm" novalidate>
+              <small class="text-danger" id="nameError" style="display: none;">Nama Pengguna sudah ada</small>
+              <small class="text-danger" id="usernameError" style="display: none">Username minimal 2 karakter</small>
+              <div class="input-group input-group-outline mb-3">
+                <label class="form-label" for="username">Username</label>
+                <input type="text" id="username" name="username" class="form-control" minlength="2" required />
+              </div>
+
+              <small class="text-danger" id="passwordError" style="display: none">Password minimal 8 karakter</small>
+              <div class="input-group input-group-outline mb-3">
+                <label class="form-label" for="password">Password</label>
+                <input type="password" id="password" name="password" class="form-control" minlength="8" required />
+              </div>
+
+              <small class="text-danger" id="confirmPasswordError" style="display: none">Password tidak cocok</small>
+              <div class="input-group input-group-outline mb-3">
+                <label class="form-label" for="confirm_password">Confirm Password</label>
+                <input type="password" id="confirm_password" name="confirm_password" class="form-control" required />
+              </div>
+
+              <div class="text-center">
+                <button type="submit" class="btn btn-lg bg-gradient-custom btn-lg w-100 mt-4 mb-0">Daftar</button>
+              </div>
+            </form>
+          </div>
+          <div class="card-footer text-center pt-0 px-lg-2 px-1">
+            <p class="mb-2 text-sm mx-auto">
+              Sudah memiliki akun?
+              <a href="{{ url_for('login') }}" class="text-success text-gradient font-weight-bold">Masuk</a>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="footer position-absolute bottom-2 py-2 w-100">
+  <div class="container">
+    <div class="row align-items-center justify-content-lg-between">
+      <div class="col-12 col-md-12 my-auto">
+        <div class="copyright text-center text-sm text-white text-lg-center">
+          © Copyright
+          <script>
+            document.write(new Date().getFullYear());
+          </script>
+          , Toko Buah
+          All rights reserved.
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const registrationForm = document.getElementById("registrationForm");
+    const usernameInput = document.getElementById("username");
+    const passwordInput = document.getElementById("password");
+    const confirmPasswordInput = document.getElementById("confirm_password");
+    const nameError = document.getElementById("nameError");
+    const usernameError = document.getElementById("usernameError");
+    const passwordError = document.getElementById("passwordError");
+    const confirmPasswordError = document.getElementById("confirmPasswordError");
+
+    registrationForm.addEventListener("submit", function (event) {
+      let valid = true;
+
+      if (usernameInput.value.length < 2) {
+        usernameError.style.display = "block";
+        valid = false;
+      } else {
+        usernameError.style.display = "none";
+      }
+
+      if (passwordInput.value.length < 8) {
+        passwordError.style.display = "block";
+        valid = false;
+      } else {
+        passwordError.style.display = "none";
+      }
+
+      if (confirmPasswordInput.value !== passwordInput.value) {
+        confirmPasswordError.style.display = "block";
+        valid = false;
+      } else {
+        confirmPasswordError.style.display = "none";
+      }
+
+      if (!valid) {
+        event.preventDefault();
+      }
+    });
+
+    usernameInput.addEventListener("input", function () {
+      const username = usernameInput.value.trim();
+      if (username.length >= 2) {
+        usernameError.style.display = "none";
+      } else {
+        usernameError.style.display = "block";
+      }
+    });
+
+    passwordInput.addEventListener("input", function () {
+      const password = passwordInput.value.trim();
+      if (password.length >= 8) {
+        passwordError.style.display = "none";
+      } else {
+        passwordError.style.display = "block";
+      }
+
+      if (confirmPasswordInput.value !== password) {
+        confirmPasswordError.style.display = "block";
+      } else {
+        confirmPasswordError.style.display = "none";
+      }
+    });
+
+    confirmPasswordInput.addEventListener("input", function () {
+      const confirmPassword = confirmPasswordInput.value.trim();
+      const password = passwordInput.value.trim();
+      if (confirmPassword !== password) {
+        confirmPasswordError.style.display = "block";
+      } else {
+        confirmPasswordError.style.display = "none";
+      }
+    });
+  });
+</script>
+
+{% endblock %}

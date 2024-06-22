@@ -1,0 +1,192 @@
+{% extends 'admin/templates/base.html' %}
+{% block content %}
+
+<div class="row">
+  <div class="col-12">
+    <div class="card my-4">
+      <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+        <div class="bg-gradient-custom shadow-success border-radius-lg pt-4 pb-3">
+          <h6 class="text-white text-capitalize ps-3">Edit Produk</h6>
+        </div>
+      </div>
+      <div class="card-body px-0 pb-2">
+        <div class="table-responsive p-0">
+          <div class="container mt-5">
+            <form id="editProductForm" method="POST" action="/editProduct/{{ data[0]._id }}" enctype="multipart/form-data">
+              <input type="hidden" class="form-control" name="_id" value="{{ data[0]._id }}" />
+              <table class="table">
+                <tbody>
+                  <tr>
+                    <td><label for="nama">Nama Produk:</label></td>
+                    <td>
+                      <small class="text-danger" id="nameError" style="display: none;">Nama Produk sudah ada</small>
+                      <div class="input-group input-group-outline">
+                        <label class="form-label"></label>
+                        <input type="text" class="form-control" id="nama" name="nama" required value="{{ data[0].nama }}" />
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><label for="gambar">Gambar :</label></td>
+                    <td>
+                      <div class="input-group input-group-outline">
+                        <div class="card">
+                          <div class="card-body">
+                            <div id="drop-area" class="border rounded d-flex justify-content-center align-items-center">
+                              <div class="content">
+                                <img id="gambar-preview" src="../static/images/ImgProducts/{{ data[0].gambar }}" />
+                              </div>
+                            </div>
+                            <input type="file" id="gambar" name="gambar" multiple accept="image/*" class="d-none"/>
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><label for="satuan">Satuan :</label></td>
+                    <td>
+                      <div class="input-group input-group-outline">
+                        <label class="form-label"></label>
+                        <select class="form-control" id="satuan" name="satuan" required>
+                          <option value="Kg" {{ 'selected' if data[0].satuan == 'Kg' else '' }}>Kg</option>
+                          <option value="Buah" {{ 'selected' if data[0].satuan == 'Buah' else '' }}>Buah</option>
+                        </select>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><label for="harga">Harga :</label></td>
+                    <td>
+                      <div class="input-group input-group-outline">
+                        <label class="form-label"></label>
+                        <input type="number" class="form-control" id="harga" name="harga" required value="{{ data[0].harga }}" />
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><label for="deskripsi">Deskripsi Produk:</label></td>
+                    <td>
+                      <div class="input-group input-group-outline">
+                        <label class="form-label"></label>
+                        <textarea class="form-control" id="deskripsi" name="deskripsi" rows="5">{{ data[0].deskripsi }}</textarea>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+              <button type="submit" id="submitBtn" class="btn btn-primary" disabled>Simpan</button>
+              <a href="{{ url_for('product') }}" class="btn btn-secondary">Kembali</a>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const namaInput = document.getElementById('nama');
+    const satuanSelect = document.getElementById('satuan');
+    const hargaInput = document.getElementById('harga');
+    const deskripsiInput = document.getElementById('deskripsi');
+    const gambarInput = document.getElementById('gambar');
+    const nameError = document.getElementById('nameError');
+    const submitBtn = document.getElementById('submitBtn');
+    const originalValues = {
+      nama: namaInput.value.trim(),
+      satuan: satuanSelect.value,
+      harga: hargaInput.value.trim(),
+      deskripsi: deskripsiInput.value.trim()
+    };
+
+    const checkForChanges = function() {
+      const currentValues = {
+        nama: namaInput.value.trim(),
+        satuan: satuanSelect.value,
+        harga: hargaInput.value.trim(),
+        deskripsi: deskripsiInput.value.trim()
+      };
+      
+      for (const key in originalValues) {
+        if (originalValues[key] !== currentValues[key]) {
+          return true;
+        }
+      }
+      if (gambarInput.files.length > 0) {
+        return true;
+      }
+      return false;
+    };
+
+    const checkInputsNotEmpty = function() {
+      return namaInput.value.trim() !== '' && hargaInput.value.trim() !== '' && deskripsiInput.value.trim() !== '';
+    };
+
+    const checkNameAndToggleButton = function() {
+      const productName = namaInput.value.trim();
+      if (productName !== '' && productName !== originalValues.nama) {
+        fetch("{{ url_for('check_product_name') }}", {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ nama: productName })
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.exists) {
+            nameError.style.display = 'block';
+            submitBtn.disabled = true;
+          } else {
+            nameError.style.display = 'none';
+            submitBtn.disabled = !(checkForChanges() && checkInputsNotEmpty());
+          }
+        });
+      } else {
+        nameError.style.display = 'none';
+        submitBtn.disabled = !(checkForChanges() && checkInputsNotEmpty());
+      }
+    };
+
+    namaInput.addEventListener('input', checkNameAndToggleButton);
+    satuanSelect.addEventListener('change', checkNameAndToggleButton);
+    hargaInput.addEventListener('input', checkNameAndToggleButton);
+    deskripsiInput.addEventListener('input', checkNameAndToggleButton);
+    gambarInput.addEventListener('change', checkNameAndToggleButton);
+
+    // Pemeriksaan awal saat halaman dimuat
+    checkNameAndToggleButton();
+
+    document.getElementById("editProductForm").addEventListener("submit", function(event) {
+      event.preventDefault();
+      var form = this;
+
+      Swal.fire({
+        title: "Apakah Anda yakin?",
+        text: "Anda akan menyimpan perubahan produk!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Ya, simpan!",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          Swal.fire({
+            title: "Berhasil!",
+            text: "Produk berhasil diperbarui.",
+            icon: "success",
+            timer: 2000,
+            timerProgressBar: true,
+            willClose: () => {
+              form.submit();
+            },
+          });
+        }
+      });
+    });
+  });
+</script>
+
+{% endblock %}

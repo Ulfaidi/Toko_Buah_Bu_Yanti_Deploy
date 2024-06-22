@@ -1,0 +1,522 @@
+{% extends 'admin/templates/base.html' %} 
+{% block content %}
+
+  <form id="purchaseForm" enctype="multipart/form-data">
+    <div class="row">
+      <div class="col-lg-6">
+        <div class="row d-flex align-items-center h-100">
+          <h6>Kode Pembelian : <span data-field="purchase_code" id="purchaseCode"></span></h6>
+        </div>
+      </div>
+      <div class="col-lg-6 d-flex align-items-center">
+        <h6>Tanggal Pembelian : <span>{{ current_date }}</span></h6>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-lg-6">
+        <!-- Supplier Details Card -->
+        <div class="card mt-2" id="supplierDetails">
+          <div class="card-header pb-0">
+            <div class="row">
+              <div class="col-lg-3">
+                <h6>Data Supplier</h6>
+                <div class="avatar avatar-xl position-relative">
+                  <img id="supplierImage" src="../static/images/imgsupplier.png" alt="Supplier Image" class="w-100 border-radius-lg shadow-sm" height="75" />
+                </div>
+              </div>
+              <div class="col-lg-9 col-7">
+                <table class="table">
+                  <tbody>
+                    <tr>
+                      <td><label for="supplierSelect">Pilih Supplier:</label></td>
+                      <td>
+                        <div class="input-group input-group-outline">
+                          <select class="form-control" id="supplierSelect" name="supplier" onchange="fetchSupplierDetails()">
+                            <option value="">--Select a Supplier--</option>
+                            {% for supplier in suppliers %}
+                            <option value="{{ supplier._id }}">{{ supplier.nama }}</option>
+                            {% endfor %}
+                          </select>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td><label for="supplierAlamat">Alamat:</label></td>
+                      <td>
+                        <div class="input-group input-group-outline">
+                          <input type="text" class="form-control" id="supplierAlamat" name="alamat" readonly />
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td><label for="supplierNo">Nomor Telepon:</label></td>
+                      <td>
+                        <div class="input-group input-group-outline">
+                          <input type="text" class="form-control" id="supplierNo" name="noTelp" readonly />
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <div class="card-body px-0 pb-2"></div>
+        </div>
+
+        <!-- Product Details Card -->
+        <div class="card mt-2" id="productDetails">
+          <div class="card-header pb-0">
+            <div class="row">
+              <div class="col-lg-3">
+                <h6>Data Produk</h6>
+                <div class="avatar avatar-xl position-relative">
+                  <img id="productImage" src="../static/images/imgproduct.png" alt="Product Image" class="w-100 border-radius-lg shadow-sm" height="75" />
+                </div>
+              </div>
+              <div class="col-lg-9 col-7">
+                <table class="table">
+                  <tbody>
+                    <tr>
+                      <td><label for="productSelect">Pilih Produk:</label></td>
+                      <td>
+                        <div class="input-group input-group-outline">
+                          <select class="form-control" id="productSelect" name="product" onchange="fetchProductDetails()">
+                            <option value="">--Select a Product--</option>
+                            {% for product in products %}
+                            <option value="{{ product._id }}">{{ product.nama }}</option>
+                            {% endfor %}
+                          </select>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td><label for="productUnit">Satuan:</label></td>
+                      <td>
+                        <div class="input-group input-group-outline">
+                          <input type="text" class="form-control" id="productUnit" name="satuan" readonly />
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td><label for="productPrice">Harga:</label></td>
+                      <td>
+                        <div class="input-group input-group-outline">
+                          <input type="number" class="form-control" id="productPrice" name="harga" />
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td><label for="productStock">Jumlah:</label></td>
+                      <td>
+                        <div class="input-group input-group-outline">
+                          <input type="number" class="form-control" id="productStock" name="stok" oninput="calculateSubtotal()" />
+                        </div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td><label for="subtotal">Subtotal:</label></td>
+                      <td>
+                        <div class="input-group input-group-outline">
+                          <input type="text" class="form-control" id="subtotal" name="totalHarga" readonly />
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+                <button id="saveSupplierDetails" type="button" class="btn btn-primary mt-2" disabled>Tambah</button>
+              </div>
+            </div>
+          </div>
+          <div class="card-body pb-1"></div>
+        </div>
+      </div>
+
+      <!-- Table Detail Pembelian Card -->
+      <div class="col-lg-6">
+        <div class="card mt-2">
+          <div class="card-header pb-0">
+            <div class="row">
+              <div class="col-lg-6 col-7">
+                <h6>Tabel Detail Pembelian</h6>
+              </div>
+            </div>
+          </div>
+          <div class="card-body px-0 pb-2">
+            <div class="table-responsive">
+              <table id="purchaseDetailsTable" class="table align-items-center text-center mb-0">
+                <thead>
+                  <tr>
+                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder">Produk</th>
+                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder">Harga</th>
+                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder">Jumlah</th>
+                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder">Satuan</th>
+                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder">Subtotal</th>
+                  </tr>
+                </thead>
+                <tbody id="purchaseDetailsBody">
+                  <!-- Tambah isi Tabel Detail Pembelian -->
+                </tbody>
+                <tfoot>
+                  <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td class="text-right"><strong>Total:</strong></td>
+                    <td id="totalValue">Rp 0</td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary mt-2">Simpan</button>
+        <a id="resetButton" class="btn btn-secondary mt-2">Kosong</a>
+      </div>
+    </div>
+  </form>
+</div>
+
+<script>
+  let savedPurchaseCodes = {};
+  let reportDetails = [];
+  let purchaseData = {};
+
+  function fetchProductDetails() {
+    const productId = document.getElementById("productSelect").value;
+    if (productId) {
+      fetch(`/product/${productId}`)
+        .then((response) => response.json())
+        .then((data) => {
+          document.getElementById("productImage").src = `../static/images/imgProducts/${data.gambar}`;
+          document.getElementById("productUnit").value = data.satuan;
+          calculateSubtotal();
+        })
+        .catch((error) => console.error("Error:", error));
+    } else {
+      resetProductDetails();
+      document.getElementById("saveSupplierDetails").disabled = true;
+    }
+  }
+
+  function resetProductDetails() {
+    document.getElementById("productImage").src = "../static/images/imgproduct.png";
+    document.getElementById("productUnit").value = "";
+    document.getElementById("productPrice").value = "";
+    document.getElementById("productStock").value = "";
+    document.getElementById("subtotal").value = "";
+  }
+
+  function calculateSubtotal() {
+    const price = parseFloat(document.getElementById("productPrice").value) || 0;
+    const quantity = parseFloat(document.getElementById("productStock").value) || 0;
+    const total = price * quantity;
+    document.getElementById("subtotal").value = total;
+  }
+
+  function fetchSupplierDetails() {
+    const supplierId = document.getElementById("supplierSelect").value;
+    if (supplierId) {
+      fetch(`/supplier/${supplierId}`)
+        .then((response) => response.json())
+        .then((data) => {
+          document.getElementById("supplierAlamat").value = data.alamat;
+          document.getElementById("supplierImage").src = `../static/images/imgSuppliers/${data.gambar}`;
+          document.getElementById("supplierNo").value = data.noTelp;
+
+          const purchaseCode = savedPurchaseCodes[supplierId] || generatePurchaseCode();
+          savedPurchaseCodes[supplierId] = purchaseCode;
+          document.getElementById("purchaseCode").textContent = purchaseCode;
+        })
+        .catch((error) => console.error("Error:", error));
+    } else {
+      resetSupplierDetails();
+    }
+  }
+
+  function resetSupplierDetails() {
+    document.getElementById("supplierAlamat").value = "";
+    document.getElementById("supplierImage").src = "../static/images/imgsupplier.png";
+    document.getElementById("supplierNo").value = "";
+  }
+
+  function resetProductForm() {
+    resetProductDetails();
+    document.getElementById("productSelect").value = "";
+  }
+
+  function calculateTotal() {
+    const tbody = document.getElementById("purchaseDetailsBody");
+    let total = 0;
+    tbody.querySelectorAll("tr").forEach((row) => {
+      const subtotal = parseFloat(row.querySelector("td:nth-child(6)").textContent.replace("Rp", "").trim());
+      total += subtotal;
+    });
+    document.getElementById("totalValue").textContent = `Rp ${total}`;
+  }
+
+  function savePurchaseDetails() {
+    const supplierId = document.getElementById("supplierSelect").value;
+    const purchaseCode = document.getElementById("purchaseCode").textContent;
+    const productSelect = document.getElementById("productSelect");
+    const productName = productSelect.options[productSelect.selectedIndex].text;
+    const productId = productSelect.value;
+    const productPrice = parseFloat(document.getElementById("productPrice").value);
+    const productStock = parseInt(document.getElementById("productStock").value);
+    const productUnit = document.getElementById("productUnit").value;
+    const subtotal = parseFloat(document.getElementById("subtotal").value);
+    const purchaseDate = new Date().toISOString().split("T")[0];
+
+    if (!purchaseData[purchaseCode]) {
+      purchaseData[purchaseCode] = {
+        supplier: document.getElementById("supplierSelect").options[document.getElementById("supplierSelect").selectedIndex].text,
+        tanggal_pembelian: purchaseDate,
+        items: [],
+      };
+    }
+
+    purchaseData[purchaseCode].items.push({
+      _id: productId,
+      produk: productName,
+      satuan: productUnit,
+      harga: productPrice,
+      jumlah: productStock,
+      total_harga: subtotal,
+    });
+
+    const purchaseDetailsTable = document.getElementById("purchaseDetailsTable");
+    const tbody = purchaseDetailsTable.querySelector("tbody");
+
+    const newRow = document.createElement("tr");
+    newRow.innerHTML = `
+        <td>${productName}</td>
+        <td>Rp ${productPrice}</td>
+        <td>${productStock}</td>
+        <td>${productUnit}</td>
+        <td>Rp ${subtotal}</td>
+    `;
+    tbody.appendChild(newRow);
+
+    calculateTotal();
+
+    resetProductForm();
+  }
+
+  document.getElementById("purchaseForm").addEventListener("submit", function (event) {
+    event.preventDefault();
+    submitReport();
+  });
+
+  document.getElementById("saveSupplierDetails").addEventListener("click", function () {
+    savePurchaseDetails();
+  });
+
+  document.getElementById("resetButton").addEventListener("click", function () {
+    resetForm();
+  });
+
+  function resetForm() {
+    resetProductDetails();
+
+    resetSupplierDetails();
+    document.getElementById("totalValue").textContent = "Rp 0";
+    document.getElementById("productSelect").value = "";
+    document.getElementById("supplierSelect").value = "";
+
+    document.getElementById("purchaseCode").textContent = "";
+
+    purchaseData = {};
+
+    document.getElementById("purchaseDetailsBody").innerHTML = "";
+  }
+
+  function generatePurchaseCode() {
+    const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    const length = 10;
+    let result = "";
+    for (let i = 0; i < length; i++) {
+      result += characters.charAt(Math.floor(Math.random() * characters.length));
+    }
+    return result;
+  }
+  function calculateTotal() {
+    const tbody = document.getElementById("purchaseDetailsBody");
+    let total = 0;
+    tbody.querySelectorAll("tr").forEach((row) => {
+      const subtotal = parseFloat(row.querySelector("td:nth-child(5)").textContent.replace("Rp", "").trim());
+      total += subtotal;
+    });
+    document.getElementById("totalValue").textContent = `Rp ${total}`;
+  }
+  function submitReport() {
+    const pembelian = Object.keys(purchaseData).map((purchaseCode) => ({
+      kode_pembelian: purchaseCode,
+      supplier: purchaseData[purchaseCode].supplier,
+      tanggal_pembelian: purchaseData[purchaseCode].tanggal_pembelian,
+      items: purchaseData[purchaseCode].items,
+    }));
+
+    fetch('{{ url_for("addPembelian") }}', {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ pembelian }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.success) {
+          Swal.fire({
+            title: "Berhasil!",
+            text: "Laporan berhasil disimpan!",
+            icon: "success",
+            confirmButtonText: "OK",
+          }).then(() => {
+            generateInvoice();
+            document.getElementById("purchaseDetailsBody").innerHTML = "";
+            purchaseData = {};
+            resetForm();
+          });
+        } else {
+          Swal.fire({
+            title: "Error!",
+            text: "Error saat menyimpan laporan: " + data.error,
+            icon: "error",
+            confirmButtonText: "OK",
+          });
+        }
+      })
+      .catch((error) => console.error("Error:", error));
+  }
+
+  document.getElementById("productSelect").addEventListener("input", function () {
+    document.getElementById("saveSupplierDetails").disabled = !checkInputsFilled();
+  });
+
+  document.getElementById("productPrice").addEventListener("input", function () {
+    document.getElementById("saveSupplierDetails").disabled = !checkInputsFilled();
+  });
+
+  document.getElementById("productStock").addEventListener("input", function () {
+    document.getElementById("saveSupplierDetails").disabled = !checkInputsFilled();
+  });
+
+  function checkInputsFilled() {
+    const productSelect = document.getElementById("productSelect").value;
+    const productPrice = document.getElementById("productPrice").value;
+    const productStock = document.getElementById("productStock").value;
+
+    return productSelect !== "" && productPrice !== "" && productStock !== "";
+  }
+
+  function generateInvoice() {
+    const selectedSupplierId = document.getElementById("supplierSelect").value;
+    const selectedSupplierName = document.getElementById("supplierSelect").options[document.getElementById("supplierSelect").selectedIndex].text;
+    const selectedSupplierAddress = document.getElementById("supplierAlamat").value;
+    const selectedSupplierPhone = document.getElementById("supplierNo").value;
+    const invoiceWindow = window.open("", "Invoice", "height=600,width=800");
+    let invoiceContent = `
+    <html>
+        <head>
+            <title>Purchase Invoice</title>
+            <style>
+                body { font-family: Arial, sans-serif; }
+                .invoice-box { max-width: 800px; margin: auto; padding: 30px; border: 1px solid #eee; box-shadow: 0 0 10px rgba(0, 0, 0, 0.15); font-size: 16px; line-height: 24px; color: #555; }
+                .invoice-box table { width: 100%; line-height: inherit; text-align: left; border-collapse: collapse; }
+                .invoice-box table td { padding: 5px; vertical-align: top; }
+                .invoice-box table tr td:nth-child(2) { text-align: right; }
+                .invoice-box table tr.top table td { padding-bottom: 20px; }
+                .invoice-box table tr.top table td.title { font-size: 45px; line-height: 45px; color: #333; }
+                .invoice-box table tr.information table td { padding-bottom: 10px; } /* Adjust padding here */
+                .invoice-box table tr.heading td { background: #eee; border-bottom: 1px solid #ddd; font-weight: bold; }
+                .invoice-box table tr.details td { padding-bottom: 20px; }
+                .invoice-box table tr.item td { border-bottom: 1px solid #eee; }
+                .invoice-box table tr.item.last td { border-bottom: none; }
+                .invoice-box table tr.total td:nth-child(2) { border-top: 2px solid #eee; font-weight: bold; }
+                .invoice-box .center { text-align: center; }
+                .invoice-box .right { text-align: right; }
+                .invoice-box .left { text-align: left; }
+                .invoice-box .equal-width td { width: 50%; }
+            </style>
+        </head>
+        <body>
+            <div class="invoice-box">
+                <table cellpadding="0" cellspacing="0">
+                    <tr class="top">
+                        <td colspan="3">
+                            <table>
+                                <tr>
+                                    <td class="left">
+                                        ${selectedSupplierName}<br>
+                                        ${selectedSupplierAddress} - ${selectedSupplierPhone}
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr class="information">
+                        <td colspan="3">
+                            <table class="equal-width">
+                                <tr>
+                                    <td class="left">
+                                        Kode Pembelian
+                                    </td>
+                                    <td class="left">
+                                        :
+                                    </td>
+                                    <td class="left">
+                                        ${Object.keys(purchaseData)[0]}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="left">
+                                        Tanggal Pembelian
+                                    </td>
+                                    <td class="left">
+                                        :
+                                    </td>
+                                    <td class="left">
+                                        {{ current_date }}
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr class="heading">
+                        <td>Nama Produk</td>
+                        <td class="right">Jumlah</td>
+                        <td class="right">Satuan</td>
+                        <td class="right">Harga Beli</td>
+                        <td class="right">Subtotal</td>
+                    </tr>`;
+
+    Object.keys(purchaseData).forEach((purchaseCode) => {
+      purchaseData[purchaseCode].items.forEach((item) => {
+        invoiceContent += `
+            <tr class="item">
+                <td>${item.produk}</td>
+                <td class="right">${item.jumlah}</td>
+                <td class="right">${item.satuan}</td>
+                <td class="right">Rp. ${item.harga}</td>
+                <td class="right">Rp. ${item.total_harga}</td>
+            </tr>`;
+      });
+    });
+
+    const total = Object.keys(purchaseData).reduce((sum, code) => sum + purchaseData[code].items.reduce((subSum, item) => subSum + item.total_harga, 0), 0);
+
+    invoiceContent += `
+                    <tr class="total">
+                        <td class="right" colspan="5">Total: Rp. ${total}</td>
+                    </tr>
+                </table>
+            </div>
+        </body>
+    </html>`;
+
+    invoiceWindow.document.write(invoiceContent);
+    invoiceWindow.document.close();
+    invoiceWindow.print();
+  }
+</script>
+{% endblock %}

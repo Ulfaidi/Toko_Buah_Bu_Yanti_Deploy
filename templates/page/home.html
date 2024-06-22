@@ -1,0 +1,106 @@
+{% include 'page/header.html' %}
+<!-- Hero Start -->
+<div class="container-fluid mb-5 hero-header">
+  <div class="container py-5">
+    <div class="row g-5 align-items-center">
+      <div class="col-md-12 col-lg-7">
+        <h4 class="mb-3 text-secondary">Buah Musiman Berkualitas</h4>
+        <h1 class="mb-5 display-2 text-primary">Selamat Datang di Toko Buah Bu Yanti</h1>
+      </div>
+      <div class="col-md-12 col-lg-5">
+        <div id="carouselId" class="carousel slide position-relative" data-bs-ride="carousel">
+          <div class="carousel-inner" role="listbox">
+            {% for product in products %}
+            <div class="carousel-item {% if loop.first %}active{% endif %} rounded">
+              <img src="../static/images/imgProducts/{{ product.gambar }}" class="img-fluid w-100 h-100 bg-secondary rounded" alt="{{ product.nama }}" />
+              <a href="{{ url_for('detail', product_id=product._id) }}" class="btn px-4 py-2 text-white rounded">{{ product.nama }}</a>
+            </div>
+            {% endfor %}
+          </div>
+          <button class="carousel-control-prev" type="button" data-bs-target="#carouselId" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+          </button>
+          <button class="carousel-control-next" type="button" data-bs-target="#carouselId" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Hero End -->
+<!-- Vesitable Shop Start-->
+<div class="container-fluid vesitable">
+  <div class="container mt-5">
+    <div class="row mb-3 mt-3">
+      <div class="col lg-8">
+        <h1 class="mb-0">Buah Musiman Berkualitas</h1>
+      </div>
+    </div>
+    <div class="owl-carousel vegetable-carousel justify-content-center">
+      {% for product in products %}
+      <div class="border border-primary rounded position-relative vesitable-item">
+        <div class="vesitable-img">
+          <a href="{{ url_for('detail', product_id=product._id) }}">
+            <img src="../static/images/imgProducts/{{ product.gambar }}" class="img-fluid w-100 rounded-top" alt="" />
+          </a>
+        </div>
+        <div class="text-white bg-primary px-3 py-1 rounded position-absolute" style="top: 10px; right: 10px">{% if product.stok > 0 %} Tersedia {% else %} Kosong {% endif %}</div>
+        <div class="p-4 rounded-bottom">
+          <h4>{{ product.nama }}</h4>
+          <div class="d-flex justify-content-between flex-lg-wrap">
+            <p class="text-dark fs-5 fw-bold mb-0">Rp {{ product.harga }} / {{ product.satuan }}</p>
+          </div>
+          <div class="d-flex justify-content-between mt-2 flex-lg-wrap">
+            <p class="text-dark fs-5 fw-bold mb-0"></p>
+
+            <a href="#" class="btn border border-secondary rounded-pill px-3 text-primary">Stok {{ product.stok }}</a>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+<!-- Vesitable Shop End -->
+
+{% include 'page/footer.html' %}
+
+<style>
+  #searchButton {
+    transition: opacity 0.5s ease, visibility 0.5s ease;
+  }
+
+  #searchButton.hidden {
+    opacity: 0;
+    visibility: hidden;
+  }
+</style>
+
+<script>
+  function filterProducts() {
+    var input, filter, productContainer, productItems, productName, i, searchButton;
+    input = document.getElementById("searchInput");
+    filter = input.value.toLowerCase();
+    productContainer = document.getElementById("productContainer");
+    productItems = productContainer.getElementsByClassName("product-item");
+    searchButton = document.getElementById("searchButton");
+
+    if (filter.length > 0) {
+      searchButton.classList.add("hidden");
+    } else {
+      searchButton.classList.remove("hidden");
+    }
+
+    for (i = 0; i < productItems.length; i++) {
+      productName = productItems[i].getElementsByTagName("h4")[0];
+      if (productName.innerHTML.toLowerCase().indexOf(filter) > -1) {
+        productItems[i].style.display = "";
+      } else {
+        productItems[i].style.display = "none";
+      }
+    }
+  }
+</script>
