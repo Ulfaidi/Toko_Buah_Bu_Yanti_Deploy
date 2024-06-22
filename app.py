@@ -1,6 +1,4 @@
-from os.path import join, dirname
-from dotenv import load_dotenv
-from flask import Flask, request, render_template, redirect, url_for, session, flash, jsonify
+from flask import Flask, request, render_template, redirect, url_for, session, flash, jsonify # type: ignore
 from pymongo import MongoClient
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
@@ -11,19 +9,18 @@ import random
 import string
 import os
 
-dotenv_path = join(dirname(__file__), '.env')
-load_dotenv(dotenv_path)
+app = Flask(__name__)
+app.secret_key = 'supersecretkey'
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=5)
 
 # Konfigurasi MongoDB
-MONGODB_URI = os.environ.get("MONGODB_URI")
-DB_NAME =  os.environ.get("DB_NAME")
-
-client = MongoClient(MONGODB_URI)
-db = client[DB_NAME]
+client = MongoClient('mongodb://tes:sparta@ac-3yctn6n-shard-00-00.tlo2vsi.mongodb.net:27017,ac-3yctn6n-shard-00-01.tlo2vsi.mongodb.net:27017,ac-3yctn6n-shard-00-02.tlo2vsi.mongodb.net:27017/?ssl=true&replicaSet=atlas-eeaf5d-shard-0&authSource=admin&retryWrites=true&w=majority&appName=Cluster0')
+db = client['inventory_db']
 
 app = Flask(__name__)
 app.secret_key = 'supersecretkey'
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=5)
+
 
 
 # Diperlukan login dekorator
